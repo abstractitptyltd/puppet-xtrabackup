@@ -58,20 +58,13 @@ class xtrabackup (
   $archive_cmd = $encrypt ? { true => " gpg --batch --yes --no-tty -e -r ${recipient} -o ", false => ' gzip - > ' }
   $extension = $encrypt ? { true => 'xbstream.gz.gpg', false => 'xbstream.gz' }
 
-  $full_backup = "${backup_cmd} --extra-lsndir=${checkpoint_dir} /tmp | ${archive_cmd} ${archive_dir}/${year_cmd}/${month_cmd}/${day_cmd}/${master_name}_${date_cmd}_full.${extension}"
-  $inc_backup = "${backup_cmd} --extra-lsndir=${checkpoint_dir} --incremental --incremental-basedir=${checkpoint_dir} /tmp | ${archive_cmd} ${archive_dir}/${year_cmd}/${month_cmd}/${day_cmd}/${master_name}_${date_cmd}_incremental.${extension}"
-  $diff_backup = "${backup_cmd} --incremental --incremental-basedir=${checkpoint_dir} /tmp | ${archive_cmd} ${archive_dir}/${year_cmd}/${month_cmd}/${day_cmd}/${master_name}_${date_cmd}_differntial.${extension}"
+  $full_backup = "mkdir -p ${archive_dir}/${year_cmd}/${month_cmd}/${day_cmd} && ${backup_cmd} --extra-lsndir=${checkpoint_dir} /tmp | ${archive_cmd} ${archive_dir}/${year_cmd}/${month_cmd}/${day_cmd}/${master_name}_${date_cmd}_full.${extension}"
+  $inc_backup = "mkdir -p ${archive_dir}/${year_cmd}/${month_cmd}/${day_cmd} && ${backup_cmd} --extra-lsndir=${checkpoint_dir} --incremental --incremental-basedir=${checkpoint_dir} /tmp | ${archive_cmd} ${archive_dir}/${year_cmd}/${month_cmd}/${day_cmd}/${master_name}_${date_cmd}_incremental.${extension}"
+  $diff_backup = "mkdir -p ${archive_dir}/${year_cmd}/${month_cmd}/${day_cmd} && ${backup_cmd} --incremental --incremental-basedir=${checkpoint_dir} /tmp | ${archive_cmd} ${archive_dir}/${year_cmd}/${month_cmd}/${day_cmd}/${master_name}_${date_cmd}_differntial.${extension}"
 
   if ( empty($full_hours) ) {
     fail('not setting full backup cron, full_hours in empty')
   } else {
-    # cron to create todays backup directory
-    cron {"xtrabackup ${master_name} backupdir create":
-      command => "mkdir -p ${archive_dir}/${year_cmd}/${month_cmd}/${day_cmd}",
-      user    => root,
-      hour    => 0,
-      minute  => 0,
-    }
     # full backup cron
     cron {"xtrabackup ${master_name} full backup":
       command => $full_backup,
