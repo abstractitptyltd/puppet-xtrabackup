@@ -117,7 +117,7 @@ class xtrabackup (
 
 
     if ( empty($remote_hours) ) {
-      warn('disabling remote backup cron, remote_hours is empty')
+      err('disabling remote backup cron, remote_hours is empty')
       @@cron { "xtrabackup_${::fqdn}_${master_name}":
         ensure  => absent,
         command => "rsync ${xtrabackup::params::rsync_opts} ${::fqdn}:${archive_dir}/ ${remote_base_dir}/${master_name}/",
