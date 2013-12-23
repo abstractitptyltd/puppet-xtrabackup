@@ -149,6 +149,8 @@ class xtrabackup (
         backup  => false,
       }
     }
+/*
+## this doesn't work because we can't have multiple tidys on a single directory
     if $inc_keep != 0 {
       ## tidy up old backups
       tidy { 'xtrabackup_cleanup_inc':
@@ -173,7 +175,7 @@ class xtrabackup (
         backup  => false,
       }
     }
-
+*/
   }
 
 }
