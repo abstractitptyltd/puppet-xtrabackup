@@ -58,9 +58,9 @@ class xtrabackup (
   $archive_cmd = $encrypt ? { true => " gpg --batch --yes --no-tty -e -r ${recipient} -o ", false => ' gzip - > ' }
   $extension = $encrypt ? { true => 'xbstream.gz.gpg', false => 'xbstream.gz' }
 
-  $full_backup = "mkdir -p ${archive_dir}/${year_cmd}/${month_cmd}/${day_cmd} && ${backup_cmd} --extra-lsndir=${checkpoint_dir} /tmp | ${archive_cmd} ${archive_dir}/${year_cmd}/${month_cmd}/${day_cmd}/${master_name}_${date_cmd}_full.${extension}"
-  $inc_backup = "mkdir -p ${archive_dir}/${year_cmd}/${month_cmd}/${day_cmd} && ${backup_cmd} --extra-lsndir=${checkpoint_dir} --incremental --incremental-basedir=${checkpoint_dir} /tmp | ${archive_cmd} ${archive_dir}/${year_cmd}/${month_cmd}/${day_cmd}/${master_name}_${date_cmd}_incremental.${extension}"
-  $diff_backup = "mkdir -p ${archive_dir}/${year_cmd}/${month_cmd}/${day_cmd} && ${backup_cmd} --incremental --incremental-basedir=${checkpoint_dir} /tmp | ${archive_cmd} ${archive_dir}/${year_cmd}/${month_cmd}/${day_cmd}/${master_name}_${date_cmd}_differntial.${extension}"
+  $full_backup = "mkdir -p ${archive_dir}/full/${year_cmd}/${month_cmd}/${day_cmd} && ${backup_cmd} --extra-lsndir=${checkpoint_dir} /tmp | ${archive_cmd} ${archive_dir}/full/${year_cmd}/${month_cmd}/${day_cmd}/${master_name}_${date_cmd}_full.${extension}"
+  $inc_backup = "mkdir -p ${archive_dir}/incremental/${year_cmd}/${month_cmd}/${day_cmd} && ${backup_cmd} --extra-lsndir=${checkpoint_dir} --incremental --incremental-basedir=${checkpoint_dir} /tmp | ${archive_cmd} ${archive_dir}/incremental/${year_cmd}/${month_cmd}/${day_cmd}/${master_name}_${date_cmd}_incremental.${extension}"
+  $diff_backup = "mkdir -p ${archive_dir}/diffierential/${year_cmd}/${month_cmd}/${day_cmd} && ${backup_cmd} --incremental --incremental-basedir=${checkpoint_dir} /tmp | ${archive_cmd} ${archive_dir}/differential/${year_cmd}/${month_cmd}/${day_cmd}/${master_name}_${date_cmd}_differntial.${extension}"
 
   if ( empty($full_hours) ) {
     fail('not setting full backup cron, full_hours in empty')
@@ -140,7 +140,7 @@ class xtrabackup (
     if $full_keep != 0 {
       ## tidy up old backups
       tidy { 'xtrabackup_cleanup_full':
-        path    => $archive_dir,
+        path    => "${archive_dir}/full",
         recurse => true,
         rmdirs  => true,
         matches => "${master_name}_*_full.${extension}",
@@ -149,12 +149,11 @@ class xtrabackup (
         backup  => false,
       }
     }
-/*
-## this doesn't work because we can't have multiple tidys on a single directory
+
     if $inc_keep != 0 {
-      ## tidy up old backups
+      ## tidy up old incremental backups
       tidy { 'xtrabackup_cleanup_inc':
-        path    => $archive_dir,
+        path    => "${archive_dir}/incremental",
         recurse => true,
         rmdirs  => true,
         matches => "${master_name}_*_incremental.${extension}",
@@ -164,9 +163,9 @@ class xtrabackup (
       }
     }
     if $diff_keep != 0 {
-      ## tidy up old backups
+      ## tidy up old differential backups
       tidy { 'xtrabackup_cleanup_diff':
-        path    => $archive_dir,
+        path    => "${archive_dir}/differential",
         recurse => true,
         rmdirs  => true,
         matches => "${master_name}_*_differential.${extension}",
@@ -175,7 +174,7 @@ class xtrabackup (
         backup  => false,
       }
     }
-*/
+
   }
 
 }
