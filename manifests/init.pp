@@ -67,7 +67,15 @@ class xtrabackup (
   $diff_backup = "mkdir -p ${archive_dir}/diffierential/${year_cmd}/${month_cmd}/${day_cmd} && ${backup_cmd} --incremental --incremental-basedir=${checkpoint_dir} /tmp | ${archive_cmd} ${archive_dir}/differential/${year_cmd}/${month_cmd}/${day_cmd}/${master_name}_${date_cmd}_differntial.${extension}"
 
   if ( empty($full_hours) ) {
-    fail('not setting full backup cron, full_hours in empty')
+    warn('not setting full backup cron, full_hours in empty')
+    cron {"xtrabackup ${master_name} full backup":
+      ensure  => absent,
+      command => $full_backup,
+      user    => root,
+      hour    => $full_hours,
+      minute  => 0,
+      weekday => $full_days,
+    }
   } else {
     # full backup cron
     cron {"xtrabackup ${master_name} full backup":
@@ -75,6 +83,7 @@ class xtrabackup (
       user    => root,
       hour    => $full_hours,
       minute  => 0,
+      weekday => $full_days,
     }
     if $type =~ /^(incremental|both)$/ {
       # incremental backup cron
@@ -127,23 +136,23 @@ class xtrabackup (
     if ( empty($remote_hours) ) {
       err('disabling remote backup cron, remote_hours is empty')
       @@cron { "xtrabackup_${::fqdn}_${master_name}":
-        ensure   => absent,
-        command  => "rsync ${xtrabackup::params::rsync_opts} ${::fqdn}:${archive_dir}/ ${remote_base_dir}/${master_name}/",
-        user     => root,
-        hour     => $remote_hours,
-        minute   => 10,
-        weekdays => $remote_days,
-        tag      => "xtrabackup_${xtrabackup::params::backup_server}",
+        ensure  => absent,
+        command => "rsync ${xtrabackup::params::rsync_opts} ${::fqdn}:${archive_dir}/ ${remote_base_dir}/${master_name}/",
+        user    => root,
+        hour    => $remote_hours,
+        minute  => 10,
+        weekday => $remote_days,
+        tag     => "xtrabackup_${xtrabackup::params::backup_server}",
       }
     } else {
       # exported cron to rsync to backup server
       @@cron { "xtrabackup_${::fqdn}_${master_name}":
-        command  => "rsync ${xtrabackup::params::rsync_opts} ${::fqdn}:${archive_dir}/ ${remote_base_dir}/${master_name}/",
-        user     => root,
-        hour     => $remote_hours,
-        minute   => 10,
-        weekdays => $remote_days,
-        tag      => "xtrabackup_${xtrabackup::params::backup_server}",
+        command => "rsync ${xtrabackup::params::rsync_opts} ${::fqdn}:${archive_dir}/ ${remote_base_dir}/${master_name}/",
+        user    => root,
+        hour    => $remote_hours,
+        minute  => 10,
+        weekday => $remote_days,
+        tag     => "xtrabackup_${xtrabackup::params::backup_server}",
       }
     }
 
