@@ -24,7 +24,7 @@ class xtrabackup (
   $inc_keep = 0,
   $diff_keep = 0,
   $remote_hours = hiera_array('xtrabackup::remote_hours', []),
-  $remote_days = hiera_array('xtrabackup::remote_days', []),
+  $remote_days = hiera_array('xtrabackup::remote_days', ['*']),
 ) {
   validate_re($type, '^incremental|differential|both$')
   if $encrypt {

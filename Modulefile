@@ -1,5 +1,5 @@
 name 'abstractit-xtrabackup'
-version '0.1.1'
+version '0.1.2'
 summary 'Puppet module for setting up percona xtrabackup to backup a MariaDB, Percona or MySQL server'
 description "Puppet module for setting up percona xtrabackup to backup a MariaDB, Percona or MySQL server"
 project_page 'https://github.com/abstractitptyltd/puppet-xtrabackup'
