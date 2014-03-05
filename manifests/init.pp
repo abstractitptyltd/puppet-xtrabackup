@@ -14,17 +14,17 @@ class xtrabackup (
   $base_dir = '/srv/xtrabackup',
   $remote_base_dir = '/srv/xtrabackup_remote',
   $archive_dir = '/srv/xtrabackup_archive',
-  $inc_hours = hiera_array('xtrabackup::params::inc_hours', []),
-  $diff_hours = hiera_array('xtrabackup::params::diff_hours', []),
-  $full_hours = hiera_array('xtrbaackup::params::full_hours', []),
-  $inc_days = hiera_array('xtrabackup::params::inc_days', ['*']),
-  $diff_days = hiera_array('xtrabackup::params::diff_days', ['*']),
-  $full_days = hiera_array('xtrbaackup::params::full_days', ['*']),
+  $inc_hours = hiera_array('xtrabackup::inc_hours', []),
+  $diff_hours = hiera_array('xtrabackup::diff_hours', []),
+  $full_hours = hiera_array('xtrbackup::full_hours', []),
+  $inc_days = hiera_array('xtrabackup::inc_days', ['*']),
+  $diff_days = hiera_array('xtrabackup::diff_days', ['*']),
+  $full_days = hiera_array('xtrbackup::full_days', ['*']),
   $full_keep = 0,
   $inc_keep = 0,
   $diff_keep = 0,
-  $remote_hours = hiera_array('xtrabackup::params::remote_hours', []),
-  $remote_days = hiera_array('xtrabackup::params::remote_days', []),
+  $remote_hours = hiera_array('xtrabackup::remote_hours', []),
+  $remote_days = hiera_array('xtrabackup::remote_days', []),
 ) {
   validate_re($type, '^incremental|differential|both$')
   if $encrypt {
@@ -137,22 +137,22 @@ class xtrabackup (
       err('disabling remote backup cron, remote_hours is empty')
       @@cron { "xtrabackup_${::fqdn}_${master_name}":
         ensure  => absent,
-        command => "rsync ${xtrabackup::params::rsync_opts} ${::fqdn}:${archive_dir}/ ${remote_base_dir}/${master_name}/",
+        command => "rsync ${xtrabackup::rsync_opts} ${::fqdn}:${archive_dir}/ ${remote_base_dir}/${master_name}/",
         user    => root,
         hour    => $remote_hours,
         minute  => 10,
         weekday => $remote_days,
-        tag     => "xtrabackup_${xtrabackup::params::backup_server}",
+        tag     => "xtrabackup_${xtrabackup::backup_server}",
       }
     } else {
       # exported cron to rsync to backup server
       @@cron { "xtrabackup_${::fqdn}_${master_name}":
-        command => "rsync ${xtrabackup::params::rsync_opts} ${::fqdn}:${archive_dir}/ ${remote_base_dir}/${master_name}/",
+        command => "rsync ${xtrabackup::rsync_opts} ${::fqdn}:${archive_dir}/ ${remote_base_dir}/${master_name}/",
         user    => root,
         hour    => $remote_hours,
         minute  => 10,
         weekday => $remote_days,
-        tag     => "xtrabackup_${xtrabackup::params::backup_server}",
+        tag     => "xtrabackup_${xtrabackup::backup_server}",
       }
     }
 

@@ -105,6 +105,10 @@ If you wish to join in let me know.
 Release Notes
 -------------
 
+**0.1.1**
+
+fix some paramater names
+
 **0.1.0**
 
 Initial release
