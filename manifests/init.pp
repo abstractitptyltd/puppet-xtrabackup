@@ -7,6 +7,7 @@ class xtrabackup (
   $backup_server = "backup.${::domain}",
   $type = 'incremental',
   $master_name = $::domain,
+  $rsync_ip = $::ipaddress,
   $encrypt = false,
   $gpg_pub_key = undef,
   $recipient = "root@${::domain}",
@@ -137,7 +138,7 @@ class xtrabackup (
       err('disabling remote backup cron, remote_hours is empty')
       @@cron { "xtrabackup_${::fqdn}_${master_name}":
         ensure  => absent,
-        command => "rsync ${xtrabackup::rsync_opts} ${::fqdn}:${archive_dir}/ ${remote_base_dir}/${master_name}/",
+        command => "rsync ${xtrabackup::rsync_opts} ${rsync_ip}:${archive_dir}/ ${remote_base_dir}/${master_name}/",
         user    => root,
         hour    => $remote_hours,
         minute  => 10,
@@ -147,7 +148,7 @@ class xtrabackup (
     } else {
       # exported cron to rsync to backup server
       @@cron { "xtrabackup_${::fqdn}_${master_name}":
-        command => "rsync ${xtrabackup::rsync_opts} ${::fqdn}:${archive_dir}/ ${remote_base_dir}/${master_name}/",
+        command => "rsync ${xtrabackup::rsync_opts} ${rsync_ip}:${archive_dir}/ ${remote_base_dir}/${master_name}/",
         user    => root,
         hour    => $remote_hours,
         minute  => 10,

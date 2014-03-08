@@ -1,4 +1,4 @@
-abstractitptyltd-xtrabackup
+abstractit-xtrabackup
 ====
 
 ####Table of Contents
@@ -40,6 +40,7 @@ This will manage a basic setup for xtrabackup.
     # set these vars with hiera
     $xtrabackup::type # incremental, differential or both
     $xtrabackup::backup_server # $::fqdn of backup server (defaults to backup.$::domain)
+    $xtrabackup::rsync_ip # $::ipaddress for rsync to backup server
     $xtrabackup::inc_hours # array of hours for incremental backup
     $xtrabackup::diff_hours # array of hours for differential backup
     $xtrabackup::full_hours # array of hours for full backup
@@ -104,6 +105,10 @@ If you wish to join in let me know.
 
 Release Notes
 -------------
+
+**0.1.3**
+
+switch to ipaddress for remote rsync hostname
 
 **0.1.2**
 
