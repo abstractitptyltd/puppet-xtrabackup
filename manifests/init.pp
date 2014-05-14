@@ -217,6 +217,7 @@ class xtrabackup (
                 key                 => '1C4CBDCDCD2EFD2A'
                 key_server          => 'keys.gnupg.net'
             } 
+        }
       } else {
         fail("Repository addition not supported for your distro")
       }
