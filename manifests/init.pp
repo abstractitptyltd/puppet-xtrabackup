@@ -26,6 +26,8 @@ class xtrabackup (
   $diff_keep = 0,
   $remote_hours = hiera_array('xtrabackup::remote_hours', []),
   $remote_days = hiera_array('xtrabackup::remote_days', ['*']),
+  $dbuser = 'root',
+  $dbpass = '',
 ) {
   validate_re($type, '^incremental|differential|both$')
   if $encrypt {
@@ -63,9 +65,9 @@ class xtrabackup (
   $archive_cmd = $encrypt ? { true => " gpg --batch --yes --no-tty -e -r ${recipient} -o ", false => ' gzip - > ' }
   $extension = $encrypt ? { true => 'xbstream.gz.gpg', false => 'xbstream.gz' }
 
-  $full_backup = "mkdir -p ${archive_dir}/full/${year_cmd}/${month_cmd}/${day_cmd} && ${backup_cmd} --extra-lsndir=${checkpoint_dir} /tmp | ${archive_cmd} ${archive_dir}/full/${year_cmd}/${month_cmd}/${day_cmd}/${master_name}_${date_cmd}_full.${extension}"
-  $inc_backup = "mkdir -p ${archive_dir}/incremental/${year_cmd}/${month_cmd}/${day_cmd} && ${backup_cmd} --extra-lsndir=${checkpoint_dir} --incremental --incremental-basedir=${checkpoint_dir} /tmp | ${archive_cmd} ${archive_dir}/incremental/${year_cmd}/${month_cmd}/${day_cmd}/${master_name}_${date_cmd}_incremental.${extension}"
-  $diff_backup = "mkdir -p ${archive_dir}/diffierential/${year_cmd}/${month_cmd}/${day_cmd} && ${backup_cmd} --incremental --incremental-basedir=${checkpoint_dir} /tmp | ${archive_cmd} ${archive_dir}/differential/${year_cmd}/${month_cmd}/${day_cmd}/${master_name}_${date_cmd}_differntial.${extension}"
+  $full_backup = "mkdir -p ${archive_dir}/full/${year_cmd}/${month_cmd}/${day_cmd} && ${backup_cmd} --user=${dbuser} --password=${dbpass} --extra-lsndir=${checkpoint_dir} /tmp | ${archive_cmd} ${archive_dir}/full/${year_cmd}/${month_cmd}/${day_cmd}/${master_name}_${date_cmd}_full.${extension}"
+  $inc_backup = "mkdir -p ${archive_dir}/incremental/${year_cmd}/${month_cmd}/${day_cmd} && ${backup_cmd} --user=${dbuser} --password=${dbpass} --extra-lsndir=${checkpoint_dir} --incremental --incremental-basedir=${checkpoint_dir} /tmp | ${archive_cmd} ${archive_dir}/incremental/${year_cmd}/${month_cmd}/${day_cmd}/${master_name}_${date_cmd}_incremental.${extension}"
+  $diff_backup = "mkdir -p ${archive_dir}/diffierential/${year_cmd}/${month_cmd}/${day_cmd} && ${backup_cmd} --user=${dbuser} --password=${dbpass} --incremental --incremental-basedir=${checkpoint_dir} /tmp | ${archive_cmd} ${archive_dir}/differential/${year_cmd}/${month_cmd}/${day_cmd}/${master_name}_${date_cmd}_differntial.${extension}"
 
   if ( empty($full_hours) ) {
     warn('not setting full backup cron, full_hours in empty')
