@@ -28,6 +28,8 @@ class xtrabackup (
   $remote_days = hiera_array('xtrabackup::remote_days', ['*']),
   $dbuser = 'root',
   $dbpass = '',
+  $addrepo = true,   #this will add the percona yum/apt repo
+  $osrelease = precise, # Debian/Ubuntu version for the apt repo TODO:please clean this up
 ) {
   validate_re($type, '^incremental|differential|both$')
   if $encrypt {
@@ -197,6 +199,30 @@ class xtrabackup (
       }
     }
 
+  }
+    if ($addrepo) {
+      if ($osfamily == 'RedHat') {
+        yumrepo { 'percona':
+          name     => 'Percona-Repository',
+          gpgkey   => 'http://www.percona.com/downloads/RPM-GPG-KEY-percona',
+          gpgcheck => '1',
+          baseurl  => 'http://repo.percona.com/centos/$releasever/os/$basearch/',
+          enabled  => '1',
+        }
+
+        if ( $osfamily == 'Debian' ) {
+            apt::source {'percona':
+                location            => 'http://repo.percona.com/apt'
+                release             => $osrelease
+                repos               => 'main'
+                required_packages   => 'percona-xtrabackup'
+                key                 => '1C4CBDCDCD2EFD2A'
+                key_server          => 'keys.gnupg.net'
+            }
+        }
+      } else {
+        fail('Repository addition not supported for your distro')
+      }
   }
 
 }
